@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>J-Networks Admin - Cash Recharge</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #eef2f3; }
+        .card { background: white; padding: 30px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        input { padding: 12px; width: 220px; margin: 15px 0; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
+        button { padding: 12px 24px; background: #28a745; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #218838; }
+        #status { margin-top: 15px; font-weight: bold; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>⚡ Manual Cash Recharge</h2>
+        <p>Enter the customer's phone number exactly as it appears on the portal.</p>
+        <input type="text" id="phone" placeholder="e.g., 9876543210">
+        <br>
+        <button onclick="triggerRecharge()">Cash Received - Start Recharge</button>
+        <p id="status"></p>
+    </div>
+
+    <script>
+        async function triggerRecharge() {
+            const phone = document.getElementById('phone').value;
+            const status = document.getElementById('status');
+            
+            if (!phone) {
+                status.innerText = "⚠️ Please enter a phone number.";
+                return;
+            }
+
+            // Your specific GitHub details
+            const GITHUB_TOKEN = "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"; 
+            const REPO_OWNER = "pavancmt";
+            const REPO_NAME = "wifirecharge";
+
+            status.innerText = "⏳ Sending signal to GitHub bot...";
+
+            try {
+                const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/dispatches`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${GITHUB_TOKEN}`,
+                        "Accept": "application/vnd.github.v3+json",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        event_type: "recharge_trigger",
+                        client_payload: { phone_number: phone }
+                    })
+                });
+
+                if (response.ok) { 
+                    status.innerText = "✅ Bot Started! The portal is recharging the user now."; 
+                    status.style.color = "green";
+                } else { 
+                    const errorData = await response.json();
+                    status.innerText = "❌ Error: " + (errorData.message || "Could not start bot."); 
+                    status.style.color = "red";
+                }
+            } catch (error) {
+                status.innerText = "❌ Network error. Check your connection.";
+                status.style.color = "red";
+            }
+        }
+    </script>
+</body>
+</html>
